@@ -33,4 +33,9 @@ public class PlayerView : MonoBehaviour
             _lastDirection = RunDirection.Right;
         }
     }
+
+    public void PlayTakeHit()
+    {
+        _animator.SetTrigger("TakeHit");
+    }
 }

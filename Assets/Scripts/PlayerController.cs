@@ -48,5 +48,11 @@ public class PlayerController : MonoBehaviour
         {
             _view.PlayRun();
         }
+
+        // TESTS
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            _view.PlayTakeHit();
+        }
     }
 }
