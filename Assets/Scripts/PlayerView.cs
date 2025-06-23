@@ -38,4 +38,9 @@ public class PlayerView : MonoBehaviour
     {
         _animator.SetTrigger("TakeHit");
     }
+
+    public void PlayJump()
+    {
+        _animator.SetTrigger("Jump");
+    }
 }
