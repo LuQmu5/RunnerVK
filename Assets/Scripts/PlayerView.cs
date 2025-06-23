@@ -4,43 +4,18 @@ public class PlayerView : MonoBehaviour
 {
     [SerializeField] private Animator _animator;
 
-    private enum RunDirection { None, Left, Right }
-    private RunDirection _lastDirection = RunDirection.None;
-
-    public void PlayRun()
+    public void SetXSpeed(float value)
     {
-        if (_lastDirection != RunDirection.None)
-        {
-            _animator.SetTrigger("Run");
-            _lastDirection = RunDirection.None;
-        }
+        if (value < 0)
+            value = -1;
+        else if (value > 0)
+            value = 1;
+
+        _animator.SetFloat("XSpeed", value);
     }
 
-    public void PlayRunLeft()
+    public void SetJump(bool value)
     {
-        if (_lastDirection != RunDirection.Left)
-        {
-            _animator.SetTrigger("RunLeft");
-            _lastDirection = RunDirection.Left;
-        }
-    }
-
-    public void PlayRunRight()
-    {
-        if (_lastDirection != RunDirection.Right)
-        {
-            _animator.SetTrigger("RunRight");
-            _lastDirection = RunDirection.Right;
-        }
-    }
-
-    public void PlayTakeHit()
-    {
-        _animator.SetTrigger("TakeHit");
-    }
-
-    public void PlayJump()
-    {
-        _animator.SetTrigger("Jump");
+        _animator.SetBool("IsJumping", value);
     }
 }

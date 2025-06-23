@@ -85,20 +85,7 @@ public class PlayerController : MonoBehaviour
         transform.position = new Vector3(newX, pos.y, newZ);
 
         float delta = _targetX - pos.x;
-
-        if (_inputHeld)
-        {
-            if (delta > 0.05f)
-                _view.PlayRunRight();
-            else if (delta < -0.05f)
-                _view.PlayRunLeft();
-            else
-                _view.PlayRun();
-        }
-        else
-        {
-            _view.PlayRun();
-        }
+        _view.SetXSpeed(delta);
     }
 
     private void UpdateForwardOnlyMovement()
@@ -111,7 +98,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator JumpRoutine()
     {
         _isJumping = true;
-        _view.PlayJump();
+        _view.SetJump(true);
 
         float time = 0f;
         Vector3 startPos = transform.position;
@@ -131,6 +118,6 @@ public class PlayerController : MonoBehaviour
         transform.position = endPos;
 
         _isJumping = false;
-        _view.PlayRun();
+        _view.SetJump(false);
     }
 }
