@@ -128,6 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 56752782}
+  - component: {fileID: 56752783}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -151,6 +152,23 @@ Transform:
   - {fileID: 5719422183873277100}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &56752783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 56752781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e052572350d8f4f99bda738a94dc5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _forwardSpeed: 5
+  _sideSpeed: 10
+  _laneLimit: 3
+  _mainCamera: {fileID: 963194227}
+  _view: {fileID: 5719422183873277101}
 --- !u!1 &396324528
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,7 +226,7 @@ MonoBehaviour:
   m_StreamingVersion: 20241001
   m_LegacyPriority: 0
   Target:
-    TrackingTarget: {fileID: 0}
+    TrackingTarget: {fileID: 56752782}
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
@@ -572,7 +590,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 5, y: 1, z: 5}
+  m_LocalScale: {x: 5, y: 1, z: 25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2152,6 +2170,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5719422183873277100}
   - component: {fileID: 3242746916294778454}
+  - component: {fileID: 5719422183873277101}
   m_Layer: 0
   m_Name: PlayerView
   m_TagString: Untagged
@@ -3036,13 +3055,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
-    are already bound by a Humanoid avatar. These transforms can only be changed
-    by Humanoid clips.\n\tTransform 'Character1_Reference'\n\tTransform 'Character1_RightFoot'\n\tTransform
-    'Character1_LeftHandThumb3'\n\tTransform 'Character1_LeftFoot'\n\tTransform 'Character1_RightHandThumb1'\n\tTransform
-    'Character1_LeftHandIndex1'\n\tTransform 'Character1_LeftHandRing3'\n\tTransform
-    'Character1_RightHandRing2'\n\tTransform 'Character1_RightHandPinky3'\n\tTransform
-    'Character1_RightHand'\n\tand more ...\n\tFrom animation clip 'Run'"
+  m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -4813,6 +4826,19 @@ Transform:
   - {fileID: 6522196992891882622}
   m_Father: {fileID: 56752782}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5719422183873277101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2077150984713018225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24412bd15134dac418227e1e2f6b71aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 3242746916294778454}
 --- !u!1 &5798936764916785548
 GameObject:
   m_ObjectHideFlags: 0
