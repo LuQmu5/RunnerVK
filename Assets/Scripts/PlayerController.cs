@@ -19,7 +19,10 @@ public class PlayerController : MonoBehaviour
 
     private float _targetX;
     private bool _isJumping = false;
+
     private Vector2 _swipeStart;
+    private bool _inputHeld = false;
+    private bool _jumpTriggered = false;
 
     private void Start()
     {
@@ -31,22 +34,66 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (_isJumping)
-            return;
+        HandleInput();
 
-        HandleSwipeInput();
+        if (!_isJumping)
+            UpdateMovement();
+        else
+            UpdateForwardOnlyMovement();
+    }
 
+    private void HandleInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            _swipeStart = Input.mousePosition;
+            _inputHeld = true;
+            _jumpTriggered = false;
+        }
+
+        if (Input.GetMouseButton(0) && _inputHeld && !_isJumping)
+        {
+            Vector2 current = Input.mousePosition;
+            Vector2 delta = current - _swipeStart;
+
+            // Проверка на прыжок
+            if (!_jumpTriggered && delta.y > _minSwipeDistance)
+            {
+                _jumpTriggered = true;
+                _inputHeld = true; // продолжает удерживаться после прыжка
+                StartCoroutine(JumpRoutine());
+                return;
+            }
+
+            // Горизонтальное движение
+            float direction = Mathf.Sign(delta.x);
+            _targetX += direction * _sideSpeed * Time.deltaTime;
+            _targetX = Mathf.Clamp(_targetX, -_laneLimit, _laneLimit);
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            _inputHeld = false;
+        }
+    }
+
+    private void UpdateMovement()
+    {
         Vector3 pos = transform.position;
         float newX = Mathf.MoveTowards(pos.x, _targetX, _sideSpeed * Time.deltaTime);
         float newZ = pos.z + _forwardSpeed * Time.deltaTime;
         transform.position = new Vector3(newX, pos.y, newZ);
 
-        if (Mathf.Abs(_targetX - pos.x) > 0.1f)
+        float delta = _targetX - pos.x;
+
+        if (_inputHeld)
         {
-            if (_targetX > pos.x)
+            if (delta > 0.05f)
                 _view.PlayRunRight();
-            else
+            else if (delta < -0.05f)
                 _view.PlayRunLeft();
+            else
+                _view.PlayRun();
         }
         else
         {
@@ -54,33 +101,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void HandleSwipeInput()
+    private void UpdateForwardOnlyMovement()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            _swipeStart = Input.mousePosition;
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            Vector2 swipeEnd = Input.mousePosition;
-            Vector2 swipeDelta = swipeEnd - _swipeStart;
-
-            if (Mathf.Abs(swipeDelta.y) > _minSwipeDistance && swipeDelta.y > 0)
-            {
-                StartCoroutine(JumpRoutine());
-                return;
-            }
-
-            if (Mathf.Abs(swipeDelta.x) > Mathf.Abs(swipeDelta.y))
-            {
-                Ray ray = _mainCamera.ScreenPointToRay(swipeEnd);
-                if (Physics.Raycast(ray, out RaycastHit hit))
-                {
-                    _targetX = Mathf.Clamp(hit.point.x, -_laneLimit, _laneLimit);
-                }
-            }
-        }
+        Vector3 pos = transform.position;
+        float newZ = pos.z + _forwardSpeed * Time.deltaTime;
+        transform.position = new Vector3(pos.x, pos.y, newZ);
     }
 
     private IEnumerator JumpRoutine()
