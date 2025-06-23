@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 56752782}
   - component: {fileID: 56752783}
+  - component: {fileID: 56752784}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -167,7 +168,7 @@ MonoBehaviour:
   _forwardSpeed: 5
   _sideSpeed: 10
   _laneLimit: 3
-  _jumpDuration: 1
+  _jumpDuration: 0.9
   _jumpCurve:
     serializedVersion: 2
     m_Curve:
@@ -181,8 +182,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.50013554
-      value: 1.9976091
+      time: 0.4959699
+      value: 1.5076303
       inSlope: -0.020711064
       outSlope: -0.020711064
       tangentMode: 0
@@ -201,9 +202,20 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _minSwipeDistance: 50
-  _mainCamera: {fileID: 963194227}
+  _input: {fileID: 56752784}
   _view: {fileID: 5719422183873277101}
+--- !u!114 &56752784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 56752781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63a4bd5cc02c8d34ab74ae4f9922cd7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &167663418
 GameObject:
   m_ObjectHideFlags: 0

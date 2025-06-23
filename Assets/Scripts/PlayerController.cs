@@ -11,70 +11,57 @@ public class PlayerController : MonoBehaviour
     [Header("Jump")]
     [SerializeField] private float _jumpDuration = 1f;
     [SerializeField] private AnimationCurve _jumpCurve;
-    [SerializeField] private float _minSwipeDistance = 50f;
 
     [Header("References")]
-    [SerializeField] private Camera _mainCamera;
+    [SerializeField] private PlayerInput _input;
     [SerializeField] private PlayerView _view;
 
     private float _targetX;
     private bool _isJumping = false;
 
-    private Vector2 _swipeStart;
-    private bool _inputHeld = false;
-    private bool _jumpTriggered = false;
+    private float _horizontalInput = 0f;
+
+    private void OnEnable()
+    {
+        _input.OnHorizontalChanged += OnHorizontalChanged;
+        _input.OnJump += OnJumpRequested;
+    }
+
+    private void OnDisable()
+    {
+        _input.OnHorizontalChanged -= OnHorizontalChanged;
+        _input.OnJump -= OnJumpRequested;
+    }
 
     private void Start()
     {
-        if (_mainCamera == null)
-            _mainCamera = Camera.main;
-
         _targetX = transform.position.x;
     }
 
     private void Update()
     {
-        HandleInput();
-
         if (!_isJumping)
+        {
+            _targetX += _horizontalInput * _sideSpeed * Time.deltaTime;
+            _targetX = Mathf.Clamp(_targetX, -_laneLimit, _laneLimit);
+
             UpdateMovement();
+        }
         else
+        {
             UpdateForwardOnlyMovement();
+        }
     }
 
-    private void HandleInput()
+    private void OnHorizontalChanged(float value)
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            _swipeStart = Input.mousePosition;
-            _inputHeld = true;
-            _jumpTriggered = false;
-        }
+        _horizontalInput = value;
+    }
 
-        if (Input.GetMouseButton(0) && _inputHeld && !_isJumping)
-        {
-            Vector2 current = Input.mousePosition;
-            Vector2 delta = current - _swipeStart;
-
-            // Проверка на прыжок
-            if (!_jumpTriggered && delta.y > _minSwipeDistance)
-            {
-                _jumpTriggered = true;
-                _inputHeld = true; // продолжает удерживаться после прыжка
-                StartCoroutine(JumpRoutine());
-                return;
-            }
-
-            // Горизонтальное движение
-            float direction = Mathf.Sign(delta.x);
-            _targetX += direction * _sideSpeed * Time.deltaTime;
-            _targetX = Mathf.Clamp(_targetX, -_laneLimit, _laneLimit);
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            _inputHeld = false;
-        }
+    private void OnJumpRequested()
+    {
+        if (!_isJumping)
+            StartCoroutine(JumpRoutine());
     }
 
     private void UpdateMovement()
@@ -84,8 +71,7 @@ public class PlayerController : MonoBehaviour
         float newZ = pos.z + _forwardSpeed * Time.deltaTime;
         transform.position = new Vector3(newX, pos.y, newZ);
 
-        float delta = _targetX - pos.x;
-        _view.SetXSpeed(delta);
+        _view.SetXSpeed(newX - pos.x);
     }
 
     private void UpdateForwardOnlyMovement()
