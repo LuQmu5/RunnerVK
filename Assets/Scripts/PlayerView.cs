@@ -18,4 +18,9 @@ public class PlayerView : MonoBehaviour
     {
         _animator.SetBool("IsJumping", value);
     }
+
+    public void PlayHit()
+    {
+        _animator.SetTrigger("Hit");
+    }
 }

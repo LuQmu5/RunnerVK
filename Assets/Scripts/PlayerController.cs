@@ -1,17 +1,19 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Cinemachine;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private float _minYtoFall = -5f;
+
     [Header("Movement")]
     [SerializeField] private float _forwardSpeed = 5f;
     [SerializeField] private float _sideSpeed = 10f;
     [SerializeField] private float _laneLimit = 3f;
 
     [Header("Jump")]
-    [SerializeField] private float _jumpDuration = 1f;
-    [SerializeField] private AnimationCurve _jumpCurve;
+    [SerializeField] private AnimationCurve _jumpHeightCurve;
     [SerializeField] private float _jumpForwardMultiplier = 2f;
 
     [Header("Camera Effects")]
@@ -20,11 +22,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector3 _jumpOffsetBoost = new Vector3(0f, 0.5f, -1f);
 
     [Header("References")]
-    [SerializeField] private PlayerInput _input;
+    [SerializeField] private PCPlayerInput _input;
     [SerializeField] private PlayerView _view;
+    [SerializeField] private Rigidbody _rigidbody;
+
+    public bool IsJumping { get; private set; } = false;
+    public bool IsDead { get; private set; } = false;
+
+    public IPlayerInput Input => _input;
+
 
     private float _targetX;
-    private bool _isJumping = false;
     private float _horizontalInput = 0f;
 
     private float _defaultFov;
@@ -45,6 +53,7 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        _input.Enable();
         _targetX = transform.position.x;
 
         if (_cinemachineCamera != null)
@@ -59,15 +68,28 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!_isJumping)
+        if (IsJumping || IsDead)
+            return;
+
+        _targetX += _horizontalInput * _sideSpeed * Time.deltaTime;
+        _targetX = Mathf.Clamp(_targetX, -_laneLimit, _laneLimit);
+        UpdateMovement();
+
+        if (_rigidbody.linearVelocity.y < _minYtoFall)
         {
-            _targetX += _horizontalInput * _sideSpeed * Time.deltaTime;
-            _targetX = Mathf.Clamp(_targetX, -_laneLimit, _laneLimit);
-            UpdateMovement();
+            _cinemachineCamera.Target.TrackingTarget = null;
+            _view.gameObject.SetActive(false);
+            _input.Disable();
+            IsDead = true;
         }
-        else
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.TryGetComponent(out Obstacle obstacle))
         {
-            UpdateForwardOnlyMovement();
+            Destroy(collision.gameObject);
+            _view.PlayHit();
         }
     }
 
@@ -78,7 +100,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnJumpRequested()
     {
-        if (!_isJumping)
+        if (!IsJumping)
             StartCoroutine(JumpRoutine());
     }
 
@@ -92,16 +114,9 @@ public class PlayerController : MonoBehaviour
         _view.SetXSpeed(newX - pos.x);
     }
 
-    private void UpdateForwardOnlyMovement()
-    {
-        Vector3 pos = transform.position;
-        float newZ = pos.z + _forwardSpeed * Time.deltaTime;
-        transform.position = new Vector3(pos.x, pos.y, newZ);
-    }
-
     private IEnumerator JumpRoutine()
     {
-        _isJumping = true;
+        IsJumping = true;
         _view.SetJump(true);
 
         float camTransitionTime = 0.2f;
@@ -125,26 +140,25 @@ public class PlayerController : MonoBehaviour
         _cinemachineCamera.Lens.FieldOfView = targetFov;
         _composer.FollowOffset = targetOffset;
 
-        // Прыжок
+        // Прыжок по кривой
         float time = 0f;
         Vector3 startPos = transform.position;
+        float totalJumpTime = _jumpHeightCurve.keys[^1].time;
 
-        while (time < _jumpDuration)
+        while (time < totalJumpTime)
         {
-            float normalizedTime = time / _jumpDuration;
-            float curveY = _jumpCurve.Evaluate(normalizedTime);
-            float y = startPos.y + curveY;
-            float z = startPos.z + _forwardSpeed * _jumpForwardMultiplier * normalizedTime;
+            float y = startPos.y + _jumpHeightCurve.Evaluate(time);
+            float z = startPos.z + _forwardSpeed * _jumpForwardMultiplier * time;
             transform.position = new Vector3(startPos.x, y, z);
             time += Time.deltaTime;
             yield return null;
         }
 
-        float finalZ = startPos.z + _forwardSpeed * _jumpForwardMultiplier;
+        float finalZ = startPos.z + _forwardSpeed * _jumpForwardMultiplier * totalJumpTime;
         transform.position = new Vector3(startPos.x, startPos.y, finalZ);
+        // Прыжок по кривой
 
         elapsed = 0f;
-
         while (elapsed < camTransitionTime)
         {
             float t = elapsed / camTransitionTime;
@@ -157,7 +171,8 @@ public class PlayerController : MonoBehaviour
         _cinemachineCamera.Lens.FieldOfView = _defaultFov;
         _composer.FollowOffset = _defaultOffset;
 
-        _isJumping = false;
+        IsJumping = false;
         _view.SetJump(false);
     }
+
 }
