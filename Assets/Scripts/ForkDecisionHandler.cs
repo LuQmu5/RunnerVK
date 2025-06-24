@@ -10,39 +10,48 @@ public class ForkDecisionHandler
     private readonly float _decisionTime;
     private readonly GameObject _forkUI;
     private readonly TMP_Text _instructionText;
+    private readonly PlayerController _player;
+    private readonly Road _leftRoad;
+    private readonly Road _rightRoad;
 
     private Coroutine _decisionCoroutine;
-    private float _currentInput = 0f;
-
     private Coroutine _activeTimerCoroutine;
-    private bool _decisionMade = false;
+    private Coroutine _rotateCoroutine;
+    private float _currentInput;
+    private bool _decisionMade;
 
     public ForkDecisionHandler(
         IPlayerInput input,
         MonoBehaviour coroutineRunner,
         float decisionTime,
         GameObject forkUI,
-        TMP_Text instructionText)
+        TMP_Text instructionText,
+        PlayerController player,
+        Road leftRoad,
+        Road rightRoad)
     {
         _input = input;
         _coroutineRunner = coroutineRunner;
         _decisionTime = decisionTime;
         _forkUI = forkUI;
         _instructionText = instructionText;
+        _player = player;
+        _leftRoad = leftRoad;
+        _rightRoad = rightRoad;
     }
 
-    public void StartDecision(Action<string> onDecision, Func<bool> isPlayerDead)
+    public void StartDecision(Func<bool> isPlayerDead)
     {
         if (_decisionCoroutine != null)
             return;
 
-        _decisionCoroutine = _coroutineRunner.StartCoroutine(DecisionRoutine(onDecision, isPlayerDead));
+        _decisionCoroutine = _coroutineRunner.StartCoroutine(DecisionRoutine(isPlayerDead));
     }
 
-    private IEnumerator DecisionRoutine(Action<string> onDecision, Func<bool> isPlayerDead)
+    private IEnumerator DecisionRoutine(Func<bool> isPlayerDead)
     {
         _decisionMade = false;
-        Time.timeScale = 0.2f;
+        Time.timeScale = 0.4f;
 
         _forkUI.SetActive(true);
         _instructionText.text = Application.isMobilePlatform
@@ -51,23 +60,24 @@ public class ForkDecisionHandler
 
         _input.OnHorizontalChanged += OnHorizontalInput;
 
+        float timer = _decisionTime / Time.timeScale;
+
         while (!_decisionMade)
         {
-            if (isPlayerDead())
+            timer -= Time.deltaTime;
+
+            if (isPlayerDead() || timer <= 0)
+            {
                 break;
+            }
 
             yield return null;
         }
 
-        Cleanup();
-
-        if (isPlayerDead())
-        {
-            Debug.Log("Принятие решения отменено — игрок мёртв");
-        }
-
-        _forkUI.SetActive(false);
         Time.timeScale = 1f;
+
+        Cleanup();
+        _forkUI.SetActive(false);
     }
 
     private void OnHorizontalInput(float value)
@@ -79,18 +89,44 @@ public class ForkDecisionHandler
 
         if (_activeTimerCoroutine != null)
             _coroutineRunner.StopCoroutine(_activeTimerCoroutine);
+        if (_rotateCoroutine != null)
+            _coroutineRunner.StopCoroutine(_rotateCoroutine);
 
         if (value < -0.1f)
         {
-            _activeTimerCoroutine = _coroutineRunner.StartCoroutine(DecisionTimer("левый"));
+            _activeTimerCoroutine = _coroutineRunner.StartCoroutine(DecisionTimer(_leftRoad));
+            _rotateCoroutine = _coroutineRunner.StartCoroutine(RotateTowards(_leftRoad.transform));
         }
         else if (value > 0.1f)
         {
-            _activeTimerCoroutine = _coroutineRunner.StartCoroutine(DecisionTimer("правый"));
+            _activeTimerCoroutine = _coroutineRunner.StartCoroutine(DecisionTimer(_rightRoad));
+            _rotateCoroutine = _coroutineRunner.StartCoroutine(RotateTowards(_rightRoad.transform));
         }
     }
 
-    private IEnumerator DecisionTimer(string direction)
+    private IEnumerator RotateTowards(Transform targetTransform)
+    {
+        Quaternion startRot = _player.transform.rotation;
+        Quaternion targetRot = Quaternion.LookRotation(targetTransform.forward, Vector3.up);
+
+        float elapsed = 0f;
+
+        while (elapsed < _decisionTime)
+        {
+            if (_decisionMade || Mathf.Abs(_currentInput) < 0.1f)
+                yield break;
+
+            float t = elapsed / _decisionTime;
+            _player.transform.rotation = Quaternion.Slerp(startRot, targetRot, t);
+
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        _player.transform.rotation = targetRot;
+    }
+
+    private IEnumerator DecisionTimer(Road selectedRoad)
     {
         float elapsed = 0f;
 
@@ -103,7 +139,7 @@ public class ForkDecisionHandler
             yield return null;
         }
 
-        Debug.Log($"Выбран {direction} путь");
+        _player.SetRoad(selectedRoad);
         _decisionMade = true;
     }
 
@@ -113,7 +149,6 @@ public class ForkDecisionHandler
 
         if (_activeTimerCoroutine != null)
             _coroutineRunner.StopCoroutine(_activeTimerCoroutine);
-
         if (_decisionCoroutine != null)
         {
             _coroutineRunner.StopCoroutine(_decisionCoroutine);

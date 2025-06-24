@@ -1,16 +1,15 @@
 using System.Collections;
-using UnityEngine;
+using System.Collections.Generic;
 using Unity.Cinemachine;
-using System;
+using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float _minYtoFall = -5f;
-
-    [Header("Movement")]
+    [Header("Road Movement")]
+    [SerializeField] private Road _currentRoad;
+    [SerializeField] private float _laneLimit = 3f;
     [SerializeField] private float _forwardSpeed = 5f;
     [SerializeField] private float _sideSpeed = 10f;
-    [SerializeField] private float _laneLimit = 3f;
 
     [Header("Jump")]
     [SerializeField] private AnimationCurve _jumpHeightCurve;
@@ -31,8 +30,7 @@ public class PlayerController : MonoBehaviour
 
     public IPlayerInput Input => _input;
 
-
-    private float _targetX;
+    private float _laneOffset = 0f;
     private float _horizontalInput = 0f;
 
     private float _defaultFov;
@@ -54,13 +52,11 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         _input.Enable();
-        _targetX = transform.position.x;
 
         if (_cinemachineCamera != null)
         {
             _defaultFov = _cinemachineCamera.Lens.FieldOfView;
             _composer = _cinemachineCamera.GetComponent<CinemachineFollow>();
-
             if (_composer != null)
                 _defaultOffset = _composer.FollowOffset;
         }
@@ -68,14 +64,20 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (IsJumping || IsDead)
+        if (IsJumping || IsDead || _currentRoad == null)
             return;
 
-        _targetX += _horizontalInput * _sideSpeed * Time.deltaTime;
-        _targetX = Mathf.Clamp(_targetX, -_laneLimit, _laneLimit);
-        UpdateMovement();
+        _laneOffset += _horizontalInput * _sideSpeed * Time.deltaTime;
+        _laneOffset = Mathf.Clamp(_laneOffset, -_laneLimit, _laneLimit);
 
-        if (_rigidbody.linearVelocity.y < _minYtoFall)
+        Vector3 move = _currentRoad.Forward * _forwardSpeed * Time.deltaTime;
+        Vector3 lateral = _currentRoad.Right * (_laneOffset - Vector3.Dot(transform.position - _currentRoad.transform.position, _currentRoad.Right));
+
+        transform.position += move + lateral;
+
+        _view.SetXSpeed(_horizontalInput);
+
+        if (_rigidbody.linearVelocity.y < -5f)
         {
             _cinemachineCamera.Target.TrackingTarget = null;
             _view.gameObject.SetActive(false);
@@ -104,14 +106,11 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(JumpRoutine());
     }
 
-    private void UpdateMovement()
+    public void SetRoad(Road newRoad)
     {
-        Vector3 pos = transform.position;
-        float newX = Mathf.MoveTowards(pos.x, _targetX, _sideSpeed * Time.deltaTime);
-        float newZ = pos.z + _forwardSpeed * Time.deltaTime;
-        transform.position = new Vector3(newX, pos.y, newZ);
-
-        _view.SetXSpeed(newX - pos.x);
+        _currentRoad = newRoad;
+        _laneOffset = 0f;
+        transform.rotation = Quaternion.LookRotation(_currentRoad.Forward, Vector3.up);
     }
 
     private IEnumerator JumpRoutine()
@@ -124,7 +123,6 @@ public class PlayerController : MonoBehaviour
 
         float startFov = _cinemachineCamera.Lens.FieldOfView;
         float targetFov = _defaultFov + _jumpFovBoost;
-
         Vector3 startOffset = _composer.FollowOffset;
         Vector3 targetOffset = _defaultOffset + _jumpOffsetBoost;
 
@@ -137,10 +135,6 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
-        _cinemachineCamera.Lens.FieldOfView = targetFov;
-        _composer.FollowOffset = targetOffset;
-
-        // Прыжок по кривой
         float time = 0f;
         Vector3 startPos = transform.position;
         float totalJumpTime = _jumpHeightCurve.keys[^1].time;
@@ -148,15 +142,11 @@ public class PlayerController : MonoBehaviour
         while (time < totalJumpTime)
         {
             float y = startPos.y + _jumpHeightCurve.Evaluate(time);
-            float z = startPos.z + _forwardSpeed * _jumpForwardMultiplier * time;
-            transform.position = new Vector3(startPos.x, y, z);
+            Vector3 jumpOffset = _currentRoad.Forward * _forwardSpeed * _jumpForwardMultiplier * time;
+            transform.position = new Vector3(startPos.x + jumpOffset.x, y, startPos.z + jumpOffset.z);
             time += Time.deltaTime;
             yield return null;
         }
-
-        float finalZ = startPos.z + _forwardSpeed * _jumpForwardMultiplier * totalJumpTime;
-        transform.position = new Vector3(startPos.x, startPos.y, finalZ);
-        // Прыжок по кривой
 
         elapsed = 0f;
         while (elapsed < camTransitionTime)
@@ -174,5 +164,4 @@ public class PlayerController : MonoBehaviour
         IsJumping = false;
         _view.SetJump(false);
     }
-
 }
