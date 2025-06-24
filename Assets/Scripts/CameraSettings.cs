@@ -3,17 +3,19 @@
 [CreateAssetMenu(menuName = "Camera/Camera Settings")]
 public class CameraSettings : ScriptableObject
 {
-    public float jumpZoomDuration = 0.2f;           // насколько быстро расширяется
-    public AnimationCurve jumpZoomCurve;            // кривая резкого расширения
+    public float jumpZoomDuration = 1f;
+    public AnimationCurve jumpZoomCurve;
+    public float zoomRecoveryDuration = 0.5f;
+    public AnimationCurve zoomRestoreEaseCurve;
 
-    public float zoomRecoveryDuration = 0.4f;        // сколько времени на возвращение FOV
-    public AnimationCurve zoomRestoreEaseCurve;      // кривая возврата (например, EaseOut)
+    public float fallLookHeight = 2f;
+    public float fallLookAngle = 45f;
 
-    public float fallLookHeight = 5f;
-    public float fallLookAngle = 85f;
+    public float tiltAngle = 10f;               // Макс угол наклона камеры при страйфе
+    public float tiltTransitionDuration = 0.3f; // Время плавного перехода наклона
 
-    public float tiltAngle = 10f;
-    public float tiltSpeed = 5f;
+    public float strafeScreenXOffset = 0.15f;    // Смещение камеры по горизонтали (ScreenX) при страйфе
+    public float strafeTransitionDuration = 0.3f; // Время плавного перехода смещения
 
-    public float forkTransitionDuration = 0.5f;
+    public float forkTransitionDuration = 1f;
 }

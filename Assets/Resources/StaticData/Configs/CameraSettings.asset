@@ -64,6 +64,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   fallLookHeight: 5
   fallLookAngle: 85
-  tiltAngle: 10
-  tiltSpeed: 5
+  tiltAngle: 4
+  tiltTransitionDuration: 0.2
+  strafeScreenXOffset: 0.1
+  strafeTransitionDuration: 0.2
   forkTransitionDuration: 0.5

@@ -1,16 +1,15 @@
 ﻿using System.Collections;
 using UnityEngine;
 using Unity.Cinemachine;
-using System;
 
 public class MainCameraController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private CinemachineCamera _camera;
     [SerializeField] private CameraSettings _settings;
+    [SerializeField] private CinemachineFramingTransposer _framingTransposer;
 
     private PlayerController _player;
-    private CinemachineFollow _composer;
 
     private float _defaultFov;
     private Vector3 _defaultOffset;
@@ -18,19 +17,20 @@ public class MainCameraController : MonoBehaviour
 
     private Coroutine _zoomCoroutine;
     private Coroutine _tiltCoroutine;
+    private Coroutine _strafeCoroutine;
 
     private void Awake()
     {
-        _composer = _camera.GetComponent<CinemachineFollow>();
         _defaultFov = _camera.Lens.FieldOfView;
-        _defaultOffset = _composer.FollowOffset;
-        _defaultRotation = transform.rotation;
+        _defaultOffset = _framingTransposer.m_TrackedObjectOffset;
+        _defaultRotation = transform.localRotation;
     }
 
     public void Init(PlayerController player)
     {
         _player = player;
-        _camera.Target.TrackingTarget = player.transform;
+        _camera.Follow = player.transform;
+        _camera.LookAt = player.transform;
 
         _player.OnJump += HandleJump;
         _player.OnFall += HandleFall;
@@ -56,7 +56,6 @@ public class MainCameraController : MonoBehaviour
         if (_zoomCoroutine != null)
             StopCoroutine(_zoomCoroutine);
 
-        print("Handle Jump");
         _zoomCoroutine = StartCoroutine(ZoomDuringJump());
     }
 
@@ -76,10 +75,8 @@ public class MainCameraController : MonoBehaviour
             yield return null;
         }
 
-        // Сохранили последнее значение
         float peakFov = _camera.Lens.FieldOfView;
 
-        // Плавно возвращаем обратно
         float recoveryDuration = _settings.zoomRecoveryDuration;
         elapsed = 0f;
 
@@ -95,10 +92,10 @@ public class MainCameraController : MonoBehaviour
         _camera.Lens.FieldOfView = _defaultFov;
     }
 
-
     private void HandleFall(Vector3 fallPoint)
     {
-        _camera.Target.TrackingTarget = null;
+        _camera.Follow = null;
+        _camera.LookAt = null;
 
         transform.position = fallPoint + Vector3.up * _settings.fallLookHeight;
         transform.rotation = Quaternion.Euler(_settings.fallLookAngle, _player.transform.eulerAngles.y, 0f);
@@ -106,39 +103,58 @@ public class MainCameraController : MonoBehaviour
 
     private void HandleStrafe(float direction)
     {
+        if (_strafeCoroutine != null)
+            StopCoroutine(_strafeCoroutine);
+
         if (_tiltCoroutine != null)
             StopCoroutine(_tiltCoroutine);
 
+        _strafeCoroutine = StartCoroutine(StrafeRoutine(direction));
         _tiltCoroutine = StartCoroutine(TiltCamera(direction));
     }
 
-    private IEnumerator TiltCamera(float direction)
+    private IEnumerator StrafeRoutine(float direction)
     {
-        float targetZ = direction * _settings.tiltAngle;
-        float currentZ = transform.localEulerAngles.z;
+        float targetScreenX = 0.5f + direction * _settings.strafeScreenXOffset; // 0.5 - центр экрана
+        float startScreenX = _framingTransposer.m_ScreenX;
+        float duration = _settings.strafeTransitionDuration;
+        float time = 0f;
 
-        if (currentZ > 180f)
-            currentZ -= 360f;
-
-        float t = 0f;
-
-        while (t < 1f)
+        while (time < duration)
         {
-            float z = Mathf.Lerp(currentZ, targetZ, t);
-            transform.localEulerAngles = new Vector3(
-                transform.localEulerAngles.x,
-                transform.localEulerAngles.y,
-                z
-            );
-
-            t += Time.deltaTime * _settings.tiltSpeed;
+            time += Time.deltaTime;
+            _framingTransposer.m_ScreenX = Mathf.Lerp(startScreenX, targetScreenX, time / duration);
             yield return null;
         }
+
+        _framingTransposer.m_ScreenX = targetScreenX;
+    }
+
+
+    private IEnumerator TiltCamera(float direction)
+    {
+        float targetAngle = direction * _settings.tiltAngle; // угол наклона камеры
+        float duration = _settings.tiltTransitionDuration;
+
+        Quaternion startRotation = transform.localRotation;
+        Quaternion targetRotation = Quaternion.Euler(startRotation.eulerAngles.x, startRotation.eulerAngles.y, targetAngle);
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            transform.localRotation = Quaternion.Slerp(startRotation, targetRotation, elapsed / duration);
+            yield return null;
+        }
+
+        transform.localRotation = targetRotation;
     }
 
     private void HandleForkEnter(ForkData data)
     {
-        _camera.Target.TrackingTarget = null;
+        _camera.Follow = null;
+        _camera.LookAt = null;
         StartCoroutine(MoveToForkView(data.CameraLookPoint));
     }
 
@@ -175,7 +191,8 @@ public class MainCameraController : MonoBehaviour
         Vector3 startPos = transform.position;
         Quaternion startRot = transform.rotation;
 
-        _camera.Target.TrackingTarget = _player.transform;
+        _camera.Follow = _player.transform;
+        _camera.LookAt = _player.transform;
 
         Vector3 targetPos = _player.transform.position + _player.transform.TransformDirection(_defaultOffset);
         Quaternion targetRot = Quaternion.LookRotation(_player.transform.forward, Vector3.up);
