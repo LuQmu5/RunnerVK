@@ -1,86 +1,57 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using DG.Tweening;
 
 public class JumpHandler
 {
     private readonly Transform _transform;
-    private readonly MonoBehaviour _coroutineRunner;
     private readonly JumpSettings _settings;
+    private Tween _jumpTween;
 
-    public bool IsJumping { get; private set; } = false;
+    public bool IsJumping { get; private set; }
 
-    public JumpHandler(Transform transform, MonoBehaviour coroutineRunner, JumpSettings settings)
+    public JumpHandler(Transform transform, JumpSettings settings)
     {
         _transform = transform;
-        _coroutineRunner = coroutineRunner;
         _settings = settings;
     }
 
     public bool TryJump()
     {
-        if (IsJumping) 
-            return false;
+        if (IsJumping) return false;
 
-        _coroutineRunner.StartCoroutine(JumpRoutine());
-        IsJumping = true;
-
+        DoJump();
         return true;
     }
 
-    private IEnumerator JumpRoutine()
+    private void DoJump()
     {
-        float time = 0f;
+        IsJumping = true;
+
+        Vector3 startPos = _transform.position;
         float duration = _settings.totalDuration;
         float apex = _settings.jumpHeight;
-        Vector3 startPos = _transform.position;
+        float forwardSpeed = _settings.forwardSpeed;
 
-        while (time < duration)
-        {
-            float tNorm = time / duration;
+        Sequence seq = DOTween.Sequence();
 
-            float yOffset = 0f;
+        seq.AppendInterval(duration * 0.18f);
 
-            if (tNorm < _settings.jumpStartTime)
-            {
-                yOffset = 0f;
-            }
-            else if (tNorm < _settings.apexTime)
-            {
-                float phase = Mathf.InverseLerp(_settings.jumpStartTime, _settings.apexTime, tNorm);
-                yOffset = Mathf.SmoothStep(0, apex, phase);
-            }
-            else if (tNorm < _settings.apexHoldTime)
-            {
-                yOffset = apex;
-            }
-            else if (tNorm < _settings.landTime)
-            {
-                float phase = Mathf.InverseLerp(_settings.apexHoldTime, _settings.landTime, tNorm);
-                yOffset = Mathf.SmoothStep(apex, 0, phase);
-            }
+        seq.Append(_transform.DOMoveY(startPos.y + apex, duration * 0.12f)
+            .SetEase(Ease.OutQuad));
 
-            float forwardPhase = Mathf.InverseLerp(_settings.jumpStartTime, _settings.landTime, tNorm);
-            float forwardEaseOut = 1f - Mathf.Pow(1f - forwardPhase, 2f);
-            float zOffset = _settings.forwardSpeed * forwardEaseOut * duration;
+        seq.AppendInterval(duration * 0.20f);
 
-            _transform.position = new Vector3(
-                startPos.x,
-                startPos.y + yOffset,
-                startPos.z + zOffset
-            );
+        seq.Append(_transform.DOMoveY(startPos.y, duration * 0.10f)
+            .SetEase(Ease.InQuad));
 
-            time += Time.deltaTime;
-            yield return null;
-        }
+        seq.AppendInterval(duration * 0.40f);
 
-        _transform.position = new Vector3(
-            _transform.position.x,
-            startPos.y,
-            _transform.position.z
-        );
+        seq.Insert(duration * 0.18f, _transform.DOMoveZ(startPos.z + _settings.forwardSpeed, duration * 0.18f)
+            .SetEase(Ease.Linear));
 
-        IsJumping = false;
+        seq.OnComplete(() => IsJumping = false);
+
+
+        _jumpTween = seq;
     }
-
 }

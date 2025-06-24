@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
         Input.OnHorizontalChanged += OnHorizontalChanged;
         Input.OnJump += OnJumpRequested;
 
-        _jumpHandler = new JumpHandler(transform, this, _jumpSettings);
+        _jumpHandler = new JumpHandler(transform, _jumpSettings);
         _movementHandler = new MovementHandler(transform, _movementSettings);
     }
 
