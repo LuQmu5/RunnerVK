@@ -1,14 +1,13 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
-[CreateAssetMenu(menuName = "Settings/JumpSettings")]
+[CreateAssetMenu(menuName = "Player/Jump Settings")]
 public class JumpSettings : ScriptableObject
 {
-    [Header("Основные параметры прыжка")]
-    [Range(0.1f, 5f)] public float jumpDuration = 0.6f;
-
-    [Header("Кривая прыжка (Y: 0-1)")]
-    public AnimationCurve jumpCurve;
-
-    public float forwardSpeed = 5;
+    public float totalDuration = 1f;      // Вся длительность анимации
+    public float jumpStartTime = 0.18f;   // Начало подъема
+    public float apexTime = 0.30f;        // Достижение вершины
+    public float apexHoldTime = 0.50f;    // Конец "зависания" в воздухе
+    public float landTime = 0.60f;        // Приземление
+    public float jumpHeight = 1.5f;       // Максимальная высота подъема
+    public float forwardSpeed = 5f;       // Скорость вперед во время прыжка
 }

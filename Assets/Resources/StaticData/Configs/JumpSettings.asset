@@ -12,38 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc9e394af47136345ae7d9c677c882e7, type: 3}
   m_Name: JumpSettings
   m_EditorClassIdentifier: 
-  jumpDuration: 1.833
-  jumpCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2.5
-      outSlope: 2.5
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.4
-      value: 1
-      inSlope: 0.39893615
-      outSlope: 0.39893615
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.9875
-      value: -0
-      inSlope: -1.7021277
-      outSlope: -1.7021277
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  totalDuration: 1.8
+  jumpStartTime: 0.18
+  apexTime: 0.3
+  apexHoldTime: 0.5
+  landTime: 0.6
+  jumpHeight: 1.5
   forwardSpeed: 4
