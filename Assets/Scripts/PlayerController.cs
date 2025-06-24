@@ -14,8 +14,12 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private JumpSettings _jumpSettings;
     [SerializeField] private PlayerView _view;
+    [SerializeField] private MovementSettings _movementSettings;
 
+    private MovementHandler _movementHandler;
     private JumpHandler _jumpHandler;
+
+    private float _currentHorizontal = 0f;
 
     public IPlayerInput Input { get; private set; } = null;
 
@@ -29,6 +33,7 @@ public class PlayerController : MonoBehaviour
         Input.OnJump += OnJumpRequested;
 
         _jumpHandler = new JumpHandler(transform, this, _jumpSettings);
+        _movementHandler = new MovementHandler(transform, _movementSettings);
     }
 
     private void OnDestroy()
@@ -40,11 +45,18 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         Input.Update();
+
+        if (_jumpHandler.IsJumping == false)
+        {
+            _movementHandler.Update(_currentHorizontal);
+            _view.UpdateSpeedXParam(_currentHorizontal);
+        }
     }
 
     private void OnHorizontalChanged(float value)
     {
-        
+        _currentHorizontal = value;
+        OnStrafe?.Invoke(value);
     }
 
     private void OnJumpRequested()

@@ -4,7 +4,7 @@ public class PlayerView : MonoBehaviour
 {
     [SerializeField] private Animator _animator;
 
-    public void SetXSpeed(float value)
+    public void UpdateSpeedXParam(float value)
     {
         if (value < 0)
             value = -1;

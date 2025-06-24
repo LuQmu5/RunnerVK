@@ -7,7 +7,8 @@ public class JumpHandler
     private readonly Transform _transform;
     private readonly MonoBehaviour _coroutineRunner;
     private readonly JumpSettings _settings;
-    private bool _isJumping;
+
+    public bool IsJumping { get; private set; } = false;
 
     public JumpHandler(Transform transform, MonoBehaviour coroutineRunner, JumpSettings settings)
     {
@@ -18,11 +19,11 @@ public class JumpHandler
 
     public bool TryJump()
     {
-        if (_isJumping) 
+        if (IsJumping) 
             return false;
 
         _coroutineRunner.StartCoroutine(JumpRoutine());
-        _isJumping = true;
+        IsJumping = true;
 
         return true;
     }
@@ -79,10 +80,7 @@ public class JumpHandler
             _transform.position.z
         );
 
-        yield return new WaitForEndOfFrame();
-
-        _isJumping = false;
-        Debug.Log(_isJumping);
+        IsJumping = false;
     }
 
 }

@@ -655,6 +655,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _jumpSettings: {fileID: 11400000, guid: bd82f2a698c7be64d97c8229f7be4228, type: 2}
   _view: {fileID: 4707526512615826531}
+  _movementSettings: {fileID: 11400000, guid: 1b68ed34e150c0a469865870aef44c4d, type: 2}
 --- !u!54 &3093570986009761589
 Rigidbody:
   m_ObjectHideFlags: 0
