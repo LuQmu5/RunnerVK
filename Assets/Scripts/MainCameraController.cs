@@ -56,14 +56,16 @@ public class MainCameraController : MonoBehaviour
         if (_zoomCoroutine != null)
             StopCoroutine(_zoomCoroutine);
 
+        print("Handle Jump");
         _zoomCoroutine = StartCoroutine(ZoomDuringJump());
     }
 
     private IEnumerator ZoomDuringJump()
     {
-        float elapsed = 0f;
         float duration = _settings.jumpZoomDuration;
         AnimationCurve curve = _settings.jumpZoomCurve;
+
+        float elapsed = 0f;
 
         while (elapsed < duration)
         {
@@ -74,8 +76,25 @@ public class MainCameraController : MonoBehaviour
             yield return null;
         }
 
+        // Сохранили последнее значение
+        float peakFov = _camera.Lens.FieldOfView;
+
+        // Плавно возвращаем обратно
+        float recoveryDuration = _settings.zoomRecoveryDuration;
+        elapsed = 0f;
+
+        while (elapsed < recoveryDuration)
+        {
+            float t = elapsed / recoveryDuration;
+            float eased = _settings.zoomRestoreEaseCurve.Evaluate(t);
+            _camera.Lens.FieldOfView = Mathf.Lerp(peakFov, _defaultFov, eased);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
         _camera.Lens.FieldOfView = _defaultFov;
     }
+
 
     private void HandleFall(Vector3 fallPoint)
     {

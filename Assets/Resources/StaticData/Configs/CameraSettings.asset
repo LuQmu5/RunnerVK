@@ -12,21 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2a28dbad9be02f4e8e3a9a0a5d6ad71, type: 3}
   m_Name: CameraSettings
   m_EditorClassIdentifier: 
+  jumpZoomDuration: 0.9
   jumpZoomCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: 28.655657
+      outSlope: 28.655657
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.13333334
     - serializedVersion: 3
       time: 1
-      value: 10
+      value: 20
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -36,7 +37,31 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  jumpZoomDuration: 0.5
+  zoomRecoveryDuration: 0.9
+  zoomRestoreEaseCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 28.655657
+      outSlope: 28.655657
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.13333334
+    - serializedVersion: 3
+      time: 1
+      value: 20
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   fallLookHeight: 5
   fallLookAngle: 85
   tiltAngle: 10
