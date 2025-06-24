@@ -18,4 +18,4 @@ MonoBehaviour:
   apexHoldTime: 0.5
   landTime: 0.6
   jumpHeight: 1.5
-  forwardSpeed: 4
+  forwardSpeed: 3

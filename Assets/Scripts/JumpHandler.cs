@@ -58,12 +58,10 @@ public class JumpHandler
                 float phase = Mathf.InverseLerp(_settings.apexHoldTime, _settings.landTime, tNorm);
                 yOffset = Mathf.SmoothStep(apex, 0, phase);
             }
-            else
-            {
-                yOffset = 0f;
-            }
 
-            float zOffset = _settings.forwardSpeed * Mathf.Clamp01(Mathf.InverseLerp(_settings.jumpStartTime, _settings.landTime, tNorm)) * time;
+            float forwardPhase = Mathf.InverseLerp(_settings.jumpStartTime, _settings.landTime, tNorm);
+            float forwardEaseOut = 1f - Mathf.Pow(1f - forwardPhase, 2f);
+            float zOffset = _settings.forwardSpeed * forwardEaseOut * duration;
 
             _transform.position = new Vector3(
                 startPos.x,
@@ -75,15 +73,16 @@ public class JumpHandler
             yield return null;
         }
 
-        
         _transform.position = new Vector3(
             _transform.position.x,
             startPos.y,
-            _transform.position.z //startPos.z + _settings.forwardSpeed * (_settings.landTime - _settings.jumpStartTime)
+            _transform.position.z
         );
 
-        yield return new WaitForSeconds(_settings.totalDuration - _settings.landTime);
+        yield return new WaitForEndOfFrame();
 
         _isJumping = false;
+        Debug.Log(_isJumping);
     }
+
 }
