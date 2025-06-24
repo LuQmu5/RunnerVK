@@ -9,31 +9,19 @@ public class RoadForkTrigger : MonoBehaviour
     [SerializeField] private Road _leftRoad;
     [SerializeField] private Road _rightRoad;
 
+    [SerializeField] private Transform _cameraPivotPoint;
+
     private bool _triggered = false;
+    private ForkData _data;
+
+    private void Awake()
+    {
+        _data = new ForkData(_cameraPivotPoint);
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (_triggered)
             return;
-
-        if (other.TryGetComponent(out PlayerController player))
-        {
-            _triggered = true;
-
-            var handler = new ForkDecisionHandler(
-                player.Input,
-                this,
-                _decisionTime,
-                _forkUI,
-                _instructionText,
-                player,
-                _leftRoad,
-                _rightRoad
-            );
-
-            handler.StartDecision(
-                () => player.IsDead
-            );
-        }
     }
 }

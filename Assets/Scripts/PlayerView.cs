@@ -14,12 +14,12 @@ public class PlayerView : MonoBehaviour
         _animator.SetFloat("XSpeed", value);
     }
 
-    public void SetJump(bool value)
+    public void SetJumpTrigger()
     {
-        _animator.SetBool("IsJumping", value);
+        _animator.SetTrigger("Jump");
     }
 
-    public void PlayHit()
+    public void SetHitTrigger()
     {
         _animator.SetTrigger("Hit");
     }

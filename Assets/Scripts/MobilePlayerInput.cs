@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class MobilePlayerInput : MonoBehaviour, IPlayerInput
+public class MobilePlayerInput: IPlayerInput
 {
     public event Action<float> OnHorizontalChanged;
     public event Action OnJump;
@@ -16,7 +16,7 @@ public class MobilePlayerInput : MonoBehaviour, IPlayerInput
     public void Enable() => _enabled = true;
     public void Disable() => _enabled = false;
 
-    private void Update()
+    public void Update()
     {
         if (!_enabled) return;
 

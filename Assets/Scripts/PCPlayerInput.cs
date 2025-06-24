@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class PCPlayerInput : MonoBehaviour, IPlayerInput
+public class PCPlayerInput : IPlayerInput
 {
     public event Action<float> OnHorizontalChanged;
     public event Action OnJump;
@@ -13,7 +13,7 @@ public class PCPlayerInput : MonoBehaviour, IPlayerInput
     public void Enable() => _enabled = true;
     public void Disable() => _enabled = false;
 
-    private void Update()
+    public void Update()
     {
         if (!_enabled) 
             return;
