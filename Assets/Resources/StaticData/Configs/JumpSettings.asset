@@ -12,10 +12,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc9e394af47136345ae7d9c677c882e7, type: 3}
   m_Name: JumpSettings
   m_EditorClassIdentifier: 
-  totalDuration: 1.8
-  jumpStartTime: 0.18
-  apexTime: 0.3
-  apexHoldTime: 0.5
-  landTime: 0.6
-  jumpHeight: 2
-  forwardSpeed: 6
+  <JumpCurveY>k__BackingField:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -0.004166667
+      value: 0.0023584906
+      inSlope: 4.968553
+      outSlope: 4.968553
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.07438017
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.99583334
+      value: 0.0023584906
+      inSlope: -4.528298
+      outSlope: -4.528298
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.06722695
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  <JumpCurveZ>k__BackingField:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  <JumpTime>k__BackingField: 1.5
+  <JumpHeight>k__BackingField: 3
+  <JumpLength>k__BackingField: 5

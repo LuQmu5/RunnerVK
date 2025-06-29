@@ -4,13 +4,9 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IDamagable
 {
-    public event Action OnJump;
-    public event Action<Vector3> OnFall;
-    public event Action<float> OnStrafe;
-    public event Action<ForkData> OnEnterFork;
-    public event Action OnExitFork;
+    public event Action Jumped;
 
     [SerializeField] private JumpSettings _jumpSettings;
     [SerializeField] private PlayerView _view;
@@ -23,7 +19,6 @@ public class PlayerController : MonoBehaviour
 
     public IPlayerInput Input { get; private set; } = null;
 
-
     public void Init(IPlayerInput input)
     {
         Input = input;
@@ -32,8 +27,10 @@ public class PlayerController : MonoBehaviour
         Input.OnHorizontalChanged += OnHorizontalChanged;
         Input.OnJump += OnJumpRequested;
 
-        _jumpHandler = new JumpHandler(transform, _jumpSettings);
+        _jumpHandler = new JumpHandler(this, _jumpSettings);
         _movementHandler = new MovementHandler(transform, _movementSettings);
+
+        _view.SetJumpSpeedMultiplier(_view.GetAnimationClipLength("Jump") / _jumpSettings.JumpTime);
     }
 
     private void OnDestroy()
@@ -48,7 +45,7 @@ public class PlayerController : MonoBehaviour
 
         if (_jumpHandler.IsJumping == false)
         {
-            _movementHandler.Update(_currentHorizontal);
+            _movementHandler.Update(_currentHorizontal, Time.deltaTime);
             _view.UpdateSpeedXParam(_currentHorizontal);
         }
     }
@@ -56,7 +53,6 @@ public class PlayerController : MonoBehaviour
     private void OnHorizontalChanged(float value)
     {
         _currentHorizontal = value;
-        OnStrafe?.Invoke(value);
     }
 
     private void OnJumpRequested()
@@ -64,8 +60,12 @@ public class PlayerController : MonoBehaviour
         if (_jumpHandler.TryJump())
         {
             _view.SetJumpTrigger();
-            OnJump.Invoke();
+            Jumped.Invoke();
         }
     }
-}
 
+    public void TakeDamage()
+    {
+        _view.SetHitTrigger();
+    }
+}

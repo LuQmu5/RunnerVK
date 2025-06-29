@@ -3,7 +3,7 @@
 [CreateAssetMenu(menuName = "Player/Movement Settings")]
 public class MovementSettings : ScriptableObject
 {
-    public float forwardSpeed = 5f;
-    public float sideSpeed = 5f;
-    public float sideClampDistance = 3f; // ограничение по X (влево-вправо)
+    [field: SerializeField] public float ForwardSpeed { get; private set; }
+    [field: SerializeField] public float SideSpeed { get; private set; }
+    [field: SerializeField] public float SideClampDistance { get; private set; }
 }

@@ -4,7 +4,7 @@ public class LevelBootstrap : MonoBehaviour
 {
     [SerializeField] private Transform _playerSpawnPoint;
     [SerializeField] private PlayerController _playerPrefab;
-    [SerializeField] private MainCameraController _mainCameraControllerPrefab;
+    [SerializeField] private PlayerCameraController _mainCameraControllerPrefab;
 
     private void Awake()
     {
@@ -14,7 +14,7 @@ public class LevelBootstrap : MonoBehaviour
         IPlayerInput input = platform == RuntimePlatform.Android || platform == RuntimePlatform.IPhonePlayer ? new MobilePlayerInput() : new PCPlayerInput();
         player.Init(input);
 
-        MainCameraController camera = Instantiate(_mainCameraControllerPrefab);
+        PlayerCameraController camera = Instantiate(_mainCameraControllerPrefab);
         camera.Init(player);
     }
 }

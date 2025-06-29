@@ -1,57 +1,56 @@
 ﻿using UnityEngine;
-using DG.Tweening;
+using System.Collections;
 
 public class JumpHandler
 {
-    private readonly Transform _transform;
+    private readonly MonoBehaviour _actor;
     private readonly JumpSettings _settings;
-    private Tween _jumpTween;
+    private Coroutine _jumpingCoroutine;
 
-    public bool IsJumping { get; private set; }
+    public bool IsJumping => _jumpingCoroutine != null;
 
-    public JumpHandler(Transform transform, JumpSettings settings)
+    public JumpHandler(MonoBehaviour actor, JumpSettings settings)
     {
-        _transform = transform;
+        _actor = actor;
         _settings = settings;
     }
 
     public bool TryJump()
     {
-        if (IsJumping) return false;
+        if (IsJumping) 
+            return false;
 
-        DoJump();
+        if (_jumpingCoroutine != null)
+            _actor.StopCoroutine(_jumpingCoroutine);
+
+        _jumpingCoroutine = _actor.StartCoroutine(Jumping());
+        
         return true;
     }
 
-    private void DoJump()
+    private IEnumerator Jumping()
     {
-        IsJumping = true;
+        float timer = 0f;
+        Vector3 startPosition = _actor.transform.position;
 
-        Vector3 startPos = _transform.position;
-        float duration = _settings.totalDuration;
-        float apex = _settings.jumpHeight;
-        float forwardSpeed = _settings.forwardSpeed;
+        while (timer < _settings.JumpTime)
+        {
+            float t = timer / _settings.JumpTime;
 
-        Sequence seq = DOTween.Sequence();
+            float yOffset = _settings.JumpCurveY.Evaluate(t) * _settings.JumpHeight;
+            float zOffset = _settings.JumpCurveZ.Evaluate(t) * _settings.JumpLength;
 
-        seq.AppendInterval(duration * 0.18f);
+            Vector3 newPosition = startPosition + new Vector3(0f, yOffset, zOffset);
 
-        seq.Append(_transform.DOMoveY(startPos.y + apex, duration * 0.12f)
-            .SetEase(Ease.OutQuad));
+            _actor.transform.position = newPosition;
 
-        seq.AppendInterval(duration * 0.20f);
+            timer += Time.deltaTime;
+            yield return null;
+        }
 
-        seq.Append(_transform.DOMoveY(startPos.y, duration * 0.10f)
-            .SetEase(Ease.InQuad));
+        _actor.transform.position = startPosition + new Vector3(0f, 0f, _settings.JumpLength);
 
-        seq.AppendInterval(duration * 0.40f);
-
-        seq.Insert(duration * 0.18f, _transform.DOMoveZ(startPos.z + _settings.forwardSpeed, duration * 0.18f)
-            .SetEase(Ease.Linear));
-
-        seq.OnComplete(() => IsJumping = false);
-
-
-        _jumpTween = seq;
+        _jumpingCoroutine = null;
     }
+
 }
