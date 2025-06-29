@@ -17,40 +17,42 @@ public class JumpHandler
 
     public bool TryJump()
     {
-        if (IsJumping) 
+        if (IsJumping)
             return false;
 
         if (_jumpingCoroutine != null)
             _actor.StopCoroutine(_jumpingCoroutine);
 
         _jumpingCoroutine = _actor.StartCoroutine(Jumping());
-        
         return true;
     }
 
     private IEnumerator Jumping()
     {
         float timer = 0f;
-        Vector3 startPosition = _actor.transform.position;
+        Transform transform = _actor.transform;
+        Vector3 startPosition = transform.position;
+        Vector3 jumpDirection = transform.forward.normalized;
 
         while (timer < _settings.JumpTime)
         {
             float t = timer / _settings.JumpTime;
 
             float yOffset = _settings.JumpCurveY.Evaluate(t) * _settings.JumpHeight;
-            float zOffset = _settings.JumpCurveZ.Evaluate(t) * _settings.JumpLength;
+            float forwardOffset = _settings.JumpCurveZ.Evaluate(t) * _settings.JumpLength;
 
-            Vector3 newPosition = startPosition + new Vector3(0f, yOffset, zOffset);
+            // Смещение вверх и вперёд по направлению взгляда
+            Vector3 newPosition = startPosition + (jumpDirection * forwardOffset) + Vector3.up * yOffset;
 
-            _actor.transform.position = newPosition;
+            transform.position = newPosition;
 
             timer += Time.deltaTime;
             yield return null;
         }
 
-        _actor.transform.position = startPosition + new Vector3(0f, 0f, _settings.JumpLength);
+        // Гарантируем финальную точку
+        transform.position = startPosition + (jumpDirection * _settings.JumpLength);
 
         _jumpingCoroutine = null;
     }
-
 }

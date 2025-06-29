@@ -19,5 +19,6 @@ public class LevelBootstrap : MonoBehaviour
         PlayerCameraController camera = Instantiate(_mainCameraControllerPrefab);
         camera.Init(player);
 
+        _forkUI.Init(player);
     }
 }
