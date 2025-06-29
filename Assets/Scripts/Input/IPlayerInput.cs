@@ -10,4 +10,7 @@ public interface IPlayerInput
     void Enable();
     void Disable();
     void Update();
+
+    int GetForkDirection(); // -1 ←, 1 →, 0 — не нажато
+
 }

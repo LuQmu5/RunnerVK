@@ -40,8 +40,13 @@ public class PlayerView : MonoBehaviour
         return default;
     }
 
-    internal void SetJumpSpeedMultiplier(float value)
+    public void SetJumpSpeedMultiplier(float value)
     {
         _animator.SetFloat("JumpSpeedMultiplier", value);
+    }
+
+    public void SetIdlingState(bool state)
+    {
+        _animator.SetBool("IsIdling", state);
     }
 }

@@ -93,5 +93,4 @@ public class PlayerCameraController : MonoBehaviour
 
         _jumpCameraRoutine = null;
     }
-
 }

@@ -58,4 +58,9 @@ public class MobilePlayerInput: IPlayerInput
             OnHorizontalChanged?.Invoke(0f);
         }
     }
+
+    public int GetForkDirection()
+    {
+        throw new NotImplementedException();
+    }
 }

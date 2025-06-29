@@ -36,4 +36,14 @@ public class PCPlayerInput : IPlayerInput
         if (Input.GetKeyDown(KeyCode.Space))
             OnJump?.Invoke();
     }
+
+    public int GetForkDirection()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A)) 
+            return -1;
+        if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D)) 
+            return 1;
+
+        return 0;
+    }
 }

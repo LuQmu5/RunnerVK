@@ -15,14 +15,16 @@ public class MovementHandler
 
     public void Update(float horizontalInput, float deltaTime)
     {
+        // просто накапливаем смещение без ограничения
         _sideOffset += horizontalInput * _settings.SideSpeed * deltaTime;
-        _sideOffset = Mathf.Clamp(_sideOffset, -_settings.SideClampDistance, _settings.SideClampDistance);
 
-        Vector3 right = _transform.right;
-        Vector3 rightOffset = right * (_sideOffset - Vector3.Dot(_transform.position, right));
+        // движение вбок — локальная ось X
+        Vector3 sideMove = _transform.right * horizontalInput * _settings.SideSpeed * deltaTime;
 
+        // движение вперёд — локальная ось Z
         Vector3 forwardMove = _transform.forward * _settings.ForwardSpeed * deltaTime;
 
-        _transform.position += forwardMove + rightOffset;
+        // суммарное движение
+        _transform.position += forwardMove + sideMove;
     }
 }

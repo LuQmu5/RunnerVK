@@ -9,9 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f961c3853e3f304e9537fd87fbf23cc, type: 3}
-  m_Name: MovementSettings
-  m_EditorClassIdentifier: 
-  <ForwardSpeed>k__BackingField: 6
-  <SideSpeed>k__BackingField: 4
-  <SideClampDistance>k__BackingField: 3
+  m_Script: {fileID: 0}
+  m_Name: Fork1
+  m_EditorClassIdentifier: Assembly-CSharp::ForkData
+  LeftDirectionPoint: {fileID: 0}
+  RightDirectionPoint: {fileID: 0}
+  CameraFocusPoint: {x: 0, y: 0, z: 0}
+  CameraHeight: 10
+  CameraDistance: 15
