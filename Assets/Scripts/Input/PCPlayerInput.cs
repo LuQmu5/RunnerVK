@@ -9,33 +9,63 @@ public class PCPlayerInput : IPlayerInput
     public event Action OnRightPressed;
 
     private bool _enabled;
+    private Vector3 _lastMousePosition;
 
     public void Enable() => _enabled = true;
     public void Disable() => _enabled = false;
 
+
     public void Update()
     {
-        if (!_enabled) 
+        if (!_enabled)
             return;
 
         float horizontal = 0f;
 
-        if (Input.GetKey(KeyCode.A))
+        // Клавиши
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
             horizontal = -1f;
             OnLeftPressed?.Invoke();
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
             horizontal = 1f;
             OnRightPressed?.Invoke();
         }
 
+        /*
+        else
+        {
+            // Мышь
+            Vector3 currentMouse = Input.mousePosition;
+            float deltaX = currentMouse.x - _lastMousePosition.x;
+            const float sensitivityThreshold = 2f; 
+
+            if (Mathf.Abs(deltaX) > sensitivityThreshold)
+            {
+                horizontal = deltaX < 0f ? -1f : 1f;
+
+                if (horizontal < 0f)
+                    OnLeftPressed?.Invoke();
+                else
+                    OnRightPressed?.Invoke();
+            }
+            else
+            {
+                horizontal = 0f;
+            }
+
+            _lastMousePosition = currentMouse;
+        }
+        */
+
         OnHorizontalChanged?.Invoke(horizontal);
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
             OnJump?.Invoke();
     }
+
 
     public int GetForkDirection()
     {
