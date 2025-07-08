@@ -30,6 +30,7 @@ public class JumpHandler
     private IEnumerator Jumping()
     {
         float timer = 0f;
+
         Transform transform = _actor.transform;
         Vector3 startPosition = transform.position;
         Vector3 jumpDirection = transform.forward.normalized;
@@ -41,7 +42,6 @@ public class JumpHandler
             float yOffset = _settings.JumpCurveY.Evaluate(t) * _settings.JumpHeight;
             float forwardOffset = _settings.JumpCurveZ.Evaluate(t) * _settings.JumpLength;
 
-            // Смещение вверх и вперёд по направлению взгляда
             Vector3 newPosition = startPosition + (jumpDirection * forwardOffset) + Vector3.up * yOffset;
 
             transform.position = newPosition;
@@ -50,7 +50,6 @@ public class JumpHandler
             yield return null;
         }
 
-        // Гарантируем финальную точку
         transform.position = startPosition + (jumpDirection * _settings.JumpLength);
 
         _jumpingCoroutine = null;

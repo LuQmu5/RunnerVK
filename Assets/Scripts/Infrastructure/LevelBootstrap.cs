@@ -2,6 +2,7 @@
 
 public class LevelBootstrap : MonoBehaviour
 {
+    [SerializeField] private TutorialDisplay _tutorialDisplay;
     [SerializeField] private Transform _playerSpawnPoint;
     [SerializeField] private PlayerController _playerPrefab;
     [SerializeField] private PlayerCameraController _mainCameraControllerPrefab;
@@ -9,6 +10,14 @@ public class LevelBootstrap : MonoBehaviour
 
     private void Awake()
     {
+        _tutorialDisplay.Completed += InitPlayer;
+        _tutorialDisplay.Activate();
+    }
+
+    private void InitPlayer()
+    {
+        _tutorialDisplay.Completed -= InitPlayer;
+
         PlayerController player = Instantiate(_playerPrefab, _playerSpawnPoint.position, Quaternion.identity);
 
         RuntimePlatform platform = Application.platform;

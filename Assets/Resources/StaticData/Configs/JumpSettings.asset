@@ -36,11 +36,11 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0.99583334
       value: 0.0023584906
-      inSlope: -4.528298
-      outSlope: -4.528298
+      inSlope: -2.0705755
+      outSlope: -2.0705755
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.06722695
+      inWeight: 0.10084036
       outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -70,5 +70,5 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   <JumpTime>k__BackingField: 1.5
-  <JumpHeight>k__BackingField: 3
-  <JumpLength>k__BackingField: 5
+  <JumpHeight>k__BackingField: 2
+  <JumpLength>k__BackingField: 8
