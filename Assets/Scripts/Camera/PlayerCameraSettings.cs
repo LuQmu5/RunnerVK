@@ -9,9 +9,5 @@ public class PlayerCameraSettings : ScriptableObject
     [field: SerializeField] public float JumpReturnDuration { get; private set; } = 0.4f;
     [field: SerializeField] public float JumpVerticalOffset { get; private set; } = 1f;
 
-    public float IntroHeight = 8f;
-    public float IntroDistance = 6f;
-    public float IntroDuration = 1.5f;
-
 
 }

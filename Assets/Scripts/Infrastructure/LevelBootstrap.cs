@@ -24,16 +24,12 @@ public class LevelBootstrap : MonoBehaviour
         _tutorialDisplay.Completed -= InitPlayer;
 
         PlayerController player = Instantiate(_playerPrefab, _playerSpawnPoint.position, Quaternion.identity);
+
+        player.Init(_input);
         PlayerCameraController camera = Instantiate(_mainCameraControllerPrefab);
-
-        camera.OnIntroComplete += () =>
-        {
-            player.Init(_input);
-            _forkUI.Init(player);
-        };
-
         camera.Init(player);
-    }
 
+        _forkUI.Init(player);
+    }
 }
 
