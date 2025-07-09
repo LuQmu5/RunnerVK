@@ -10,13 +10,28 @@ public class TutorialDisplay : MonoBehaviour
 
     public event Action Completed;
 
-    public void Activate(string startText)
+    public void Activate(string platformLabel)
     {
         _canvasGroup.alpha = 1;
-        _text.text = startText;
+
+        if (platformLabel == "PC")
+        {
+            _text.text =
+                "<sprite name=a>: движение влево\n" +
+                "<sprite name=d>: движение вправо\n" +
+                "<sprite name=space>: прыжок\n";
+        }
+        else
+        {
+            _text.text =
+                "свайп <sprite name=kl>: движение влево\n" +
+                "свайп <sprite name=kr>: движение вправо\n" +
+                "свайп <sprite name=ku>: прыжок\n";
+        }
 
         StartCoroutine(CompletingRoutine());
     }
+
 
     private IEnumerator CompletingRoutine()
     {
