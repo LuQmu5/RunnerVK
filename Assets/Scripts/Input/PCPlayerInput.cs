@@ -3,77 +3,29 @@ using UnityEngine;
 
 public class PCPlayerInput : IPlayerInput
 {
-    public event Action<float> OnHorizontalChanged;
-    public event Action OnJump;
-    public event Action OnLeftPressed;
-    public event Action OnRightPressed;
+    private const string HorizontalAxisName = "Horizontal";
+    private const float MaxRightHorizontalValue = 1f;
+    private const float MaxLeftHorizontalValue = -1f;
+    private const KeyCode JumpKey = KeyCode.Space;
+
+    public event Action<float> HorizontalInputChanged;
+    public event Action JumpKeyPressed;
 
     private bool _enabled;
-    private Vector3 _lastMousePosition;
+    private float _horizontalInputSensetivity = 2;
 
     public void Enable() => _enabled = true;
     public void Disable() => _enabled = false;
 
-
     public void Update()
     {
-        if (!_enabled)
+        if (_enabled == false)
             return;
 
-        float horizontal = 0f;
+        float horizontal = Input.GetAxis(HorizontalAxisName) * _horizontalInputSensetivity;
+        HorizontalInputChanged?.Invoke(Mathf.Clamp(horizontal, MaxLeftHorizontalValue, MaxRightHorizontalValue));
 
-        // Клавиши
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
-        {
-            horizontal = -1f;
-            OnLeftPressed?.Invoke();
-        }
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-        {
-            horizontal = 1f;
-            OnRightPressed?.Invoke();
-        }
-
-        /*
-        else
-        {
-            // Мышь
-            Vector3 currentMouse = Input.mousePosition;
-            float deltaX = currentMouse.x - _lastMousePosition.x;
-            const float sensitivityThreshold = 2f; 
-
-            if (Mathf.Abs(deltaX) > sensitivityThreshold)
-            {
-                horizontal = deltaX < 0f ? -1f : 1f;
-
-                if (horizontal < 0f)
-                    OnLeftPressed?.Invoke();
-                else
-                    OnRightPressed?.Invoke();
-            }
-            else
-            {
-                horizontal = 0f;
-            }
-
-            _lastMousePosition = currentMouse;
-        }
-        */
-
-        OnHorizontalChanged?.Invoke(horizontal);
-
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
-            OnJump?.Invoke();
-    }
-
-
-    public int GetForkDirection()
-    {
-        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A)) 
-            return -1;
-        if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D)) 
-            return 1;
-
-        return 0;
+        if (Input.GetKeyDown(JumpKey))
+            JumpKeyPressed?.Invoke();
     }
 }

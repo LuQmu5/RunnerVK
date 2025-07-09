@@ -7,11 +7,6 @@ public class PlayerView : MonoBehaviour
 
     public void UpdateSpeedXParam(float value)
     {
-        if (value < 0)
-            value = -1;
-        else if (value > 0)
-            value = 1;
-
         _animator.SetFloat("XSpeed", value);
     }
 
@@ -31,7 +26,7 @@ public class PlayerView : MonoBehaviour
         {
             if (clip.name == clipName)
             {
-                Debug.Log(clip.length + ": jump time");
+                // Debug.Log(clip.length + ": jump time");
                 return clip.length;
             }
         }
@@ -48,5 +43,12 @@ public class PlayerView : MonoBehaviour
     public void SetIdlingState(bool state)
     {
         _animator.SetBool("IsIdling", state);
+    }
+
+    public void SetRotateTriggerFor(string direction)
+    {
+        string name = "Rotate" + direction;
+        Debug.Log(name);
+        _animator.SetTrigger(name);
     }
 }

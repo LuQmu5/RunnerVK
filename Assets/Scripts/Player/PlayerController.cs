@@ -6,8 +6,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour, IDamagable
 {
     public event Action Jumped;
-    public event Action<ForkData> ForkEntered;
+    public event Action ForkEntered;
     public event Action ForkExited;
+
+    private const float LeftTurnValue = -45f;
+    private const float RightTurnValue = 45f;
 
     [SerializeField] private JumpSettings _jumpSettings;
     [SerializeField] private PlayerView _view;
@@ -18,6 +21,7 @@ public class PlayerController : MonoBehaviour, IDamagable
 
     private bool _onFork = false;
     private float _currentHorizontal = 0f;
+    private float _currentForkHorizontal = 0;
 
     public IPlayerInput Input { get; private set; } = null;
 
@@ -26,8 +30,8 @@ public class PlayerController : MonoBehaviour, IDamagable
         Input = input;
         Input.Enable();
 
-        Input.OnHorizontalChanged += OnHorizontalChanged;
-        Input.OnJump += OnJumpRequested;
+        Input.HorizontalInputChanged += OnHorizontalChanged;
+        Input.JumpKeyPressed += OnJumpRequested;
 
         _jumpHandler = new JumpHandler(this, _jumpSettings);
         _movementHandler = new MovementHandler(transform, _movementSettings);
@@ -37,15 +41,18 @@ public class PlayerController : MonoBehaviour, IDamagable
 
     private void OnDestroy()
     {
-        Input.OnHorizontalChanged -= OnHorizontalChanged;
-        Input.OnJump -= OnJumpRequested;
+        Input.HorizontalInputChanged -= OnHorizontalChanged;
+        Input.JumpKeyPressed -= OnJumpRequested;
     }
 
     private void Update()
     {
+        if (_jumpHandler.IsJumping)
+            return;
+
         Input.Update();
 
-        if (_jumpHandler.IsJumping == false && _onFork == false)
+        if (_onFork == false)
         {
             _movementHandler.Update(_currentHorizontal, Time.deltaTime);
             _view.UpdateSpeedXParam(_currentHorizontal);
@@ -54,13 +61,17 @@ public class PlayerController : MonoBehaviour, IDamagable
 
     private void OnHorizontalChanged(float value)
     {
-        _currentHorizontal = value;
+        if (_onFork)
+            _currentForkHorizontal = value;
+        else
+            _currentHorizontal = value;
     }
 
     private void OnJumpRequested()
     {
         if (_jumpHandler.TryJump())
         {
+            _currentHorizontal = 0;
             _view.SetJumpTrigger();
             Jumped.Invoke();
         }
@@ -71,32 +82,47 @@ public class PlayerController : MonoBehaviour, IDamagable
         _view.SetHitTrigger();
     }
 
-    public void EnterFork(ForkData forkData)
+    public void EnterFork()
     {
-        StartCoroutine(ForkRoutine(forkData));
+        StartCoroutine(ForkRoutine());
     }
 
-    private IEnumerator ForkRoutine(ForkData forkData)
+    private IEnumerator ForkRoutine()
     {
         _onFork = true;
         _currentHorizontal = 0;
+        _currentForkHorizontal = 0;
+
         _view.SetIdlingState(true);
 
-        ForkEntered?.Invoke(forkData);
+        ForkEntered?.Invoke();
 
-        yield return new WaitUntil(() => _currentHorizontal != 0);
+        yield return new WaitUntil(() => IsHoldDirectionValueCompleted());
 
-        float angleY = _currentHorizontal < 0 ? -45f : 45f;
+        float angleY = _currentForkHorizontal < 0 ? LeftTurnValue : RightTurnValue;
+        string rotateDirection = _currentForkHorizontal < 0 ? "Left" : "Right";
         Quaternion targetRotation = Quaternion.Euler(0f, transform.eulerAngles.y + angleY, 0f);
-        float rotateTime = 0.5f;
+
+        _view.SetRotateTriggerFor(rotateDirection);
+        float rotateTime = _view.GetAnimationClipLength("Rotate" + rotateDirection);
 
         yield return transform
             .DORotateQuaternion(targetRotation, rotateTime)
             .SetEase(Ease.OutQuad)
             .WaitForCompletion();
 
+        ExitFork();
+    }
+
+    private void ExitFork()
+    {
         _onFork = false;
         _view.SetIdlingState(false);
         ForkExited?.Invoke();
+    }
+
+    private bool IsHoldDirectionValueCompleted()
+    {
+        return Mathf.Abs(_currentForkHorizontal) == -1 || Mathf.Abs(_currentForkHorizontal) == 1;
     }
 }

@@ -21,7 +21,7 @@ public class ForkDesicionView : MonoBehaviour
         _player.ForkExited -= Hide;
     }
 
-    public void Show(ForkData data)
+    public void Show()
     {
         gameObject.SetActive(true);
         _panel.DOFade(1f, 0.3f).SetEase(Ease.OutQuad);

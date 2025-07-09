@@ -10,9 +10,10 @@ public class TutorialDisplay : MonoBehaviour
 
     public event Action Completed;
 
-    public void Activate()
+    public void Activate(string startText)
     {
         _canvasGroup.alpha = 1;
+        _text.text = startText;
 
         StartCoroutine(CompletingRoutine());
     }

@@ -1,66 +1,62 @@
-﻿using System;
+﻿using Lean.Touch;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class MobilePlayerInput: IPlayerInput
+public class MobilePlayerInput : IPlayerInput
 {
-    public event Action<float> OnHorizontalChanged;
-    public event Action OnJump;
-    public event Action OnLeftPressed;
-    public event Action OnRightPressed;
+    private const float MaxSwipeDistance = 300f; 
+    private const float MaxRightHorizontalValue = 1f;
+    private const float MaxLeftHorizontalValue = -1f;
 
-    private Vector2 _touchStart;
-    private bool _touchActive;
-    private float _minSwipeDistance = 50f;
+    public event Action<float> HorizontalInputChanged;
+    public event Action JumpKeyPressed;
+
     private bool _enabled;
 
-    public void Enable() => _enabled = true;
-    public void Disable() => _enabled = false;
-
-    public void Update()
+    public void Enable()
     {
-        if (!_enabled) return;
+        LeanTouch.OnFingerTap += HandleFingerTap;
+        LeanTouch.OnGesture += HandleGesture;
+        _enabled = true;
+    }
 
-        if (Input.touchCount == 0)
-        {
-            OnHorizontalChanged?.Invoke(0f);
-            _touchActive = false;
+    public void Disable()
+    {
+        LeanTouch.OnFingerTap -= HandleFingerTap;
+        LeanTouch.OnGesture -= HandleGesture;
+        _enabled = false;
+    }
+
+    public void Update() { }
+
+    private void HandleFingerTap(LeanFinger finger)
+    {
+        if (_enabled == false)
             return;
-        }
 
-        Touch touch = Input.GetTouch(0);
-
-        if (touch.phase == TouchPhase.Began)
+        if (finger != null && finger.Age <= 0.2f)
         {
-            _touchStart = touch.position;
-            _touchActive = true;
-        }
-        else if (touch.phase == TouchPhase.Moved && _touchActive)
-        {
-            Vector2 delta = touch.position - _touchStart;
-
-            float horizontal = Mathf.Clamp(delta.x / Screen.width, -1f, 1f);
-            OnHorizontalChanged?.Invoke(horizontal);
-
-            if (horizontal < -0.5f)
-                OnLeftPressed?.Invoke();
-            else if (horizontal > 0.5f)
-                OnRightPressed?.Invoke();
-
-            if (delta.y > _minSwipeDistance)
-            {
-                _touchActive = false;
-                OnJump?.Invoke();
-            }
-        }
-        else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
-        {
-            _touchActive = false;
-            OnHorizontalChanged?.Invoke(0f);
+            JumpKeyPressed?.Invoke();
         }
     }
 
-    public int GetForkDirection()
+    private void HandleGesture(List<LeanFinger> fingers)
     {
-        throw new NotImplementedException();
+        if (_enabled == false || fingers.Count != 1)
+            return;
+
+        Vector2 delta = fingers[0].SwipeScreenDelta;
+
+        if (IsHorizontalSwipe(delta))
+        {
+            float horizontal = Mathf.Clamp(delta.x / MaxSwipeDistance, MaxLeftHorizontalValue, MaxRightHorizontalValue);
+            HorizontalInputChanged?.Invoke(horizontal);
+        }
+    }
+
+    private static bool IsHorizontalSwipe(Vector2 delta)
+    {
+        return Mathf.Abs(delta.x) > Mathf.Abs(delta.y);
     }
 }

@@ -8,10 +8,15 @@ public class LevelBootstrap : MonoBehaviour
     [SerializeField] private PlayerCameraController _mainCameraControllerPrefab;
     [SerializeField] private ForkDesicionView _forkUI;
 
+    private IPlayerInput _input;
+
     private void Awake()
     {
+        bool isMobile = PlatformDetector.IsMobileByResolution();
+        _input = isMobile ? new MobilePlayerInput() : new PCPlayerInput();
+
+        _tutorialDisplay.Activate(isMobile? "Mobila" : "PC");
         _tutorialDisplay.Completed += InitPlayer;
-        _tutorialDisplay.Activate();
     }
 
     private void InitPlayer()
@@ -19,11 +24,7 @@ public class LevelBootstrap : MonoBehaviour
         _tutorialDisplay.Completed -= InitPlayer;
 
         PlayerController player = Instantiate(_playerPrefab, _playerSpawnPoint.position, Quaternion.identity);
-
-        RuntimePlatform platform = Application.platform;
-        IPlayerInput input = platform == RuntimePlatform.Android || platform == RuntimePlatform.IPhonePlayer ? new MobilePlayerInput() : new PCPlayerInput();
-
-        player.Init(input);
+        player.Init(_input);
 
         PlayerCameraController camera = Instantiate(_mainCameraControllerPrefab);
         camera.Init(player);
@@ -31,3 +32,4 @@ public class LevelBootstrap : MonoBehaviour
         _forkUI.Init(player);
     }
 }
+

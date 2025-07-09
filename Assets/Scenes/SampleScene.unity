@@ -513,7 +513,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73bcf3fcc515e6f47963a0c7bc54dde7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _forkData: {fileID: 11400000, guid: 85b0debf2df35fa469065e4223fa2845, type: 2}
   _leftPoint: {fileID: 1913602341383838749}
   _rightPoint: {fileID: 8225361526340810037}
 --- !u!65 &172649013
@@ -656,7 +655,6 @@ GameObject:
   - component: {fileID: 247173785}
   - component: {fileID: 247173784}
   - component: {fileID: 247173783}
-  - component: {fileID: 247173782}
   m_Layer: 6
   m_Name: RoadPartWithFork
   m_TagString: Untagged
@@ -684,18 +682,6 @@ Transform:
   - {fileID: 1504235141}
   m_Father: {fileID: 624437157}
   m_LocalEulerAnglesHint: {x: 0, y: -45, z: 0}
---- !u!114 &247173782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 247173780}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc178969f0a2770409db8454ba955f8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!64 &247173783
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2506,7 +2492,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73bcf3fcc515e6f47963a0c7bc54dde7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _forkData: {fileID: 11400000, guid: 85b0debf2df35fa469065e4223fa2845, type: 2}
   _leftPoint: {fileID: 1280098181}
   _rightPoint: {fileID: 1925499890}
 --- !u!1 &1517572456
