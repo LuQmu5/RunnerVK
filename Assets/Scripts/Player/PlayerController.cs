@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour, IDamagable
         _view.SetJumpSpeedMultiplier(_view.GetAnimationClipLength("Jump") / _jumpSettings.JumpTime);
 
         _isPaused = false;
+        _view.SetIdlingState(false);
     }
 
     private void OnDestroy()
