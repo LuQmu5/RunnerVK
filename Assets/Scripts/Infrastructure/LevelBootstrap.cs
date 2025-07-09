@@ -10,8 +10,7 @@ public class LevelBootstrap : MonoBehaviour
     [SerializeField] private PlayerCameraController _mainCameraControllerPrefab;
     [SerializeField] private ForkDesicionView _forkUI;
     [SerializeField] private CinemachineCamera _introCamera;
-
-    [SerializeField] private float _delayBeforeSwitch = 1.5f;
+    [SerializeField] private float _delayBeforeStart = 1.5f;
 
     private IPlayerInput _input;
 
@@ -38,7 +37,7 @@ public class LevelBootstrap : MonoBehaviour
         camera.Init(player);
         camera.GetComponent<CinemachineCamera>().Priority = 30;
 
-        yield return new WaitForSeconds(_delayBeforeSwitch);
+        yield return new WaitForSeconds(_delayBeforeStart);
 
         player.Init(_input);
         _forkUI.Init(player);
