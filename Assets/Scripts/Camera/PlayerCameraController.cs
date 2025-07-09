@@ -2,6 +2,7 @@
 using UnityEngine;
 using Unity.Cinemachine;
 using DG.Tweening;
+using System;
 
 public class PlayerCameraController : MonoBehaviour
 {
@@ -14,16 +15,61 @@ public class PlayerCameraController : MonoBehaviour
     private Coroutine _jumpCameraRoutine;
     private float _defaultDistance;
 
+    public event Action OnIntroComplete;
+
     public void Init(PlayerController player)
     {
         _player = player;
-        _camera.Target.TrackingTarget = player.transform;
-
         _defaultDistance = _thirdPersonFollow.CameraDistance;
 
+        // Прежде чем прикрепиться к игроку — делаем пролет камеры
+        StartCoroutine(IntroCameraRoutine());
+    }
+
+    private IEnumerator IntroCameraRoutine()
+    {
+        Vector3 introStartOffset = new Vector3(0f, _settings.IntroHeight, -_settings.IntroDistance);
+        Vector3 targetOffset = new Vector3(0f, _thirdPersonFollow.VerticalArmLength, -_defaultDistance);
+
+        Transform cameraTransform = _camera.transform;
+        Transform playerTransform = _player.transform;
+
+        Vector3 startPosition = playerTransform.position + introStartOffset;
+        Vector3 targetPosition = playerTransform.position + targetOffset;
+
+        cameraTransform.position = startPosition;
+        cameraTransform.LookAt(playerTransform.position + Vector3.up * 1.2f);
+
+        float duration = _settings.IntroDuration;
+
+        // Движение по дуге (вниз)
+        float time = 0f;
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            float t = time / duration;
+            float curvedT = EaseOutCubic(t);
+
+            Vector3 currentPosition = Vector3.Slerp(startPosition - playerTransform.position, targetPosition - playerTransform.position, curvedT) + playerTransform.position;
+            cameraTransform.position = currentPosition;
+            cameraTransform.LookAt(playerTransform.position + Vector3.up * 1.2f);
+
+            yield return null;
+        }
+
+        // Только теперь прикрепляем камеру к игроку
+        _camera.Target.TrackingTarget = playerTransform;
+
+        // Камера готова, можно инициировать игрока
+        _occluderFader.SetTarget(playerTransform);
         _player.Jumped += HandleJump;
 
-        _occluderFader.SetTarget(_player.transform);
+        OnIntroComplete?.Invoke();
+    }
+
+    private float EaseOutCubic(float t)
+    {
+        return 1 - Mathf.Pow(1 - t, 3);
     }
 
     private void OnDestroy()

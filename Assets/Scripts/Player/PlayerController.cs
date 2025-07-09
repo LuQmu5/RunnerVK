@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour, IDamagable
     private MovementHandler _movementHandler;
     private JumpHandler _jumpHandler;
 
+    private bool _isPaused = true;
     private bool _onFork = false;
     private float _currentHorizontal = 0f;
     private float _currentForkHorizontal = 0;
@@ -37,6 +38,8 @@ public class PlayerController : MonoBehaviour, IDamagable
         _movementHandler = new MovementHandler(transform, _movementSettings);
 
         _view.SetJumpSpeedMultiplier(_view.GetAnimationClipLength("Jump") / _jumpSettings.JumpTime);
+
+        _isPaused = false;
     }
 
     private void OnDestroy()
@@ -47,6 +50,9 @@ public class PlayerController : MonoBehaviour, IDamagable
 
     private void Update()
     {
+        if (_isPaused)
+            return;
+
         if (_jumpHandler.IsJumping)
             return;
 

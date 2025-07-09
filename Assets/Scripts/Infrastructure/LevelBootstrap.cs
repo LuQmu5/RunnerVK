@@ -12,7 +12,7 @@ public class LevelBootstrap : MonoBehaviour
 
     private void Awake()
     {
-        bool isMobile = PlatformDetector.IsMobileByResolution();
+        bool isMobile = PlatformDetector.IsMobile();
         _input = isMobile ? new MobilePlayerInput() : new PCPlayerInput();
 
         _tutorialDisplay.Activate(isMobile? "Mobila" : "PC");
@@ -24,12 +24,16 @@ public class LevelBootstrap : MonoBehaviour
         _tutorialDisplay.Completed -= InitPlayer;
 
         PlayerController player = Instantiate(_playerPrefab, _playerSpawnPoint.position, Quaternion.identity);
-        player.Init(_input);
-
         PlayerCameraController camera = Instantiate(_mainCameraControllerPrefab);
-        camera.Init(player);
 
-        _forkUI.Init(player);
+        camera.OnIntroComplete += () =>
+        {
+            player.Init(_input);
+            _forkUI.Init(player);
+        };
+
+        camera.Init(player);
     }
+
 }
 
