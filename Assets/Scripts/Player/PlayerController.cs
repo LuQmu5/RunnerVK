@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System;
 using System.Collections;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IDamagable
@@ -15,6 +16,7 @@ public class PlayerController : MonoBehaviour, IDamagable
     [SerializeField] private JumpSettings _jumpSettings;
     [SerializeField] private PlayerView _view;
     [SerializeField] private MovementSettings _movementSettings;
+    [SerializeField] private CinemachineCamera _loseCamera;
 
     private MovementHandler _movementHandler;
     private JumpHandler _jumpHandler;
@@ -25,9 +27,12 @@ public class PlayerController : MonoBehaviour, IDamagable
     private float _currentForkHorizontal = 0;
 
     public IPlayerInput Input { get; private set; } = null;
+    public float Health { get; private set; }
 
     public void Init(IPlayerInput input)
     {
+        Health = 3;
+
         Input = input;
         Input.Enable();
 
@@ -41,6 +46,13 @@ public class PlayerController : MonoBehaviour, IDamagable
 
         _isPaused = false;
         _view.SetIdlingState(false);
+    }
+
+    public void HandleWin()
+    {
+        _view.SetWinTrigger();
+        Input.Disable();
+        _isPaused = true;
     }
 
     private void OnDestroy()
@@ -84,9 +96,22 @@ public class PlayerController : MonoBehaviour, IDamagable
         }
     }
 
-    public void TakeDamage()
+    public void TakeDamage(float amount)
     {
-        _view.SetHitTrigger();
+        Health -= amount;
+
+        if (Health <= 0)
+        {
+            Health = 0;
+            Input.Disable();
+            _isPaused = true;
+            _view.SetLoseTrigger();
+            _loseCamera.gameObject.SetActive(true);
+        }
+        else
+        {
+            _view.SetHitTrigger();
+        }
     }
 
     public void EnterFork()

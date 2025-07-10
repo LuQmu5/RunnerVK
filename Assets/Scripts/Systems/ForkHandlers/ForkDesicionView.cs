@@ -1,18 +1,22 @@
 ﻿using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 public class ForkDesicionView : MonoBehaviour
 {
     [SerializeField] private CanvasGroup _panel;
+    [SerializeField] private TMP_Text _text;
 
     private PlayerController _player;
 
-    public void Init(PlayerController player)
+    public void Init(PlayerController player, string hintText)
     {
         _player = player;
 
         _player.ForkEntered += Show;
         _player.ForkExited += Hide;
+
+        _text.text = hintText;
     }
 
     private void OnDestroy()

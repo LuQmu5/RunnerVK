@@ -51,4 +51,14 @@ public class PlayerView : MonoBehaviour
         Debug.Log(name);
         _animator.SetTrigger(name);
     }
+
+    public void SetWinTrigger()
+    {
+        _animator.SetTrigger("Win");
+    }
+
+    internal void SetLoseTrigger()
+    {
+        _animator.SetTrigger("Lose");
+    }
 }

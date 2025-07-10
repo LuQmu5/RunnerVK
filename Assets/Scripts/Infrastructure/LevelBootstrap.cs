@@ -13,13 +13,14 @@ public class LevelBootstrap : MonoBehaviour
     [SerializeField] private float _delayBeforeStart = 1.5f;
 
     private IPlayerInput _input;
+    private bool _isMobile;
 
     private void Awake()
     {
-        bool isMobile = PlatformDetector.IsMobile();
-        _input = isMobile ? new MobilePlayerInput() : new PCPlayerInput();
+        _isMobile = PlatformDetector.IsMobile();
+        _input = _isMobile ? new MobilePlayerInput() : new PCPlayerInput();
 
-        _tutorialDisplay.Activate(isMobile ? "Mobila" : "PC");
+        _tutorialDisplay.Activate(_isMobile ? "Mobila" : "PC");
         _tutorialDisplay.Completed += OnTutorialCompleted;
     }
 
@@ -40,6 +41,8 @@ public class LevelBootstrap : MonoBehaviour
         yield return new WaitForSeconds(_delayBeforeStart);
 
         player.Init(_input);
-        _forkUI.Init(player);
+        _forkUI.Init(player, _isMobile? 
+            "свайп <sprite name=kl>: выбрать левую развилку\nсвайп <sprite name=kr>: выбрать правую развилку" 
+            : "<sprite name=a>: выбрать левую развилку\n<sprite name=d>: выбрать правую развилку");
     }
 }
