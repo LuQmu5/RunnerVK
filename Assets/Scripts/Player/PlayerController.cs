@@ -9,6 +9,8 @@ public class PlayerController : MonoBehaviour, IDamagable
     public event Action Jumped;
     public event Action ForkEntered;
     public event Action ForkExited;
+    public event Action Lose;
+    public event Action Win;
 
     private const float LeftTurnValue = -45f;
     private const float RightTurnValue = 45f;
@@ -53,10 +55,14 @@ public class PlayerController : MonoBehaviour, IDamagable
         _view.SetWinTrigger();
         Input.Disable();
         _isPaused = true;
+        Win?.Invoke();
     }
 
     private void OnDestroy()
     {
+        if (Input == null)
+            return;
+
         Input.HorizontalInputChanged -= OnHorizontalChanged;
         Input.JumpKeyPressed -= OnJumpRequested;
     }
@@ -107,6 +113,7 @@ public class PlayerController : MonoBehaviour, IDamagable
             _isPaused = true;
             _view.SetLoseTrigger();
             _loseCamera.gameObject.SetActive(true);
+            Lose?.Invoke();
         }
         else
         {

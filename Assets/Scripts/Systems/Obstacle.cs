@@ -9,7 +9,7 @@ public class Obstacle : MonoBehaviour
         if (other.TryGetComponent(out IDamagable damagableActor))
         {
             damagableActor.TakeDamage(_damagePerHit);
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 }

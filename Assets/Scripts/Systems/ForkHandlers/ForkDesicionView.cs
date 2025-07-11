@@ -21,6 +21,9 @@ public class ForkDesicionView : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (_player == null)
+            return;
+
         _player.ForkEntered -= Show;
         _player.ForkExited -= Hide;
     }

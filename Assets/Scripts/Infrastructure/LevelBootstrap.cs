@@ -12,6 +12,9 @@ public class LevelBootstrap : MonoBehaviour
     [SerializeField] private CinemachineCamera _introCamera;
     [SerializeField] private float _delayBeforeStart = 1.5f;
 
+    [SerializeField] private LoseDisplay _loseDisplay;
+    [SerializeField] private WinDisplay _winDisplay;
+
     private IPlayerInput _input;
     private bool _isMobile;
 
@@ -22,6 +25,8 @@ public class LevelBootstrap : MonoBehaviour
 
         _tutorialDisplay.Activate(_isMobile ? "Mobila" : "PC");
         _tutorialDisplay.Completed += OnTutorialCompleted;
+
+        GameRestarter gameRestarter = new GameRestarter();
     }
 
     private void OnTutorialCompleted()
@@ -44,5 +49,8 @@ public class LevelBootstrap : MonoBehaviour
         _forkUI.Init(player, _isMobile? 
             "свайп <sprite name=kl>: выбрать левую развилку\nсвайп <sprite name=kr>: выбрать правую развилку" 
             : "<sprite name=a>: выбрать левую развилку\n<sprite name=d>: выбрать правую развилку");
+
+        _loseDisplay.Init(player);
+        _winDisplay.Init(player);
     }
 }
